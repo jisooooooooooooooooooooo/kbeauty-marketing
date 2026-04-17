@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *'  # 매일 UTC 00:00 = 한국 09:00
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run-tracker:
     runs-on: ubuntu-latest
@@ -32,3 +35,15 @@ jobs:
 
       - name: Run Amazon Tracker
         run: python phase2_amazon/main.py
+
+      - name: Deploy to GitHub Pages
+        run: |
+          mkdir -p docs
+          cp output/amazon_preview.html docs/amazon_preview.html
+          cp output/all_products.html docs/all_products.html
+          cp output/amazon_preview.html docs/index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git diff --cached --quiet || git commit -m "Update GitHub Pages report [skip ci]"
+          git push

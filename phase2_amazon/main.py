@@ -359,8 +359,8 @@ def build_email_html(changes: dict, summary: dict, today_items: list[dict]) -> s
     """이메일용 HTML 생성 (K-뷰티 TOP 5 + 리포트 링크 포함)"""
     today = datetime.now().strftime("%Y년 %m월 %d일")
 
-    PREVIEW_URL = "file:///Users/ijisu/kbeauty-marketing/output/amazon_preview.html"
-    ALL_PRODUCTS_URL = "file:///Users/ijisu/kbeauty-marketing/output/all_products.html"
+    PREVIEW_URL = "https://jisooooooooooooooooooooo.github.io/kbeauty-marketing/amazon_preview.html"
+    ALL_PRODUCTS_URL = "https://jisooooooooooooooooooooo.github.io/kbeauty-marketing/all_products.html"
 
     # ── K-뷰티 TOP 5 ──────────────────────────────────────
     kbeauty_sorted = sorted(
