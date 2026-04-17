@@ -291,12 +291,11 @@ def generate_all_products_html(items: list[dict]) -> str:
         badge = '<span style="display:inline-block;background:#ea580c;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:4px;">K</span>' if is_k else ""
         name_cell = f'<a href="{item["url"]}" target="_blank" style="color:#1d4ed8;text-decoration:none;">{item["name"][:70]}</a>{badge}'
         rows_html += f"""<tr{row_style}>
-  <td style="text-align:center;font-weight:700;color:#6b7280;">{item['rank']}</td>
+  <td class="col-rank">{item['rank']}</td>
   <td>{name_cell}</td>
-  <td style="white-space:nowrap;">{item.get('brand','?')}</td>
-  <td style="white-space:nowrap;">{item['price']}</td>
-  <td style="white-space:nowrap;">⭐ {item['rating']}</td>
-  <td style="white-space:nowrap;color:#6b7280;">{item['review_count']}</td>
+  <td class="col-price">{item['price']}</td>
+  <td class="col-rating">⭐ {item['rating']}</td>
+  <td class="col-reviews">{item['review_count']}</td>
 </tr>"""
 
     return f"""<!DOCTYPE html>
@@ -307,19 +306,32 @@ def generate_all_products_html(items: list[dict]) -> str:
 <title>아마존 전체 제품 목록 - {today}</title>
 <style>
   body {{ font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-         background:#f0f4f8; margin:0; padding:20px; color:#1a202c; }}
+         background:#f0f4f8; margin:0; padding:12px; color:#1a202c; }}
   .wrap {{ max-width:960px; margin:0 auto; background:#fff; border-radius:8px;
            box-shadow:0 1px 4px rgba(0,0,0,.1); overflow:hidden; }}
-  .hdr {{ background:linear-gradient(135deg,#1d4ed8,#1e40af); padding:24px;
+  .hdr {{ background:linear-gradient(135deg,#1d4ed8,#1e40af); padding:20px;
           color:#fff; }}
-  .hdr h1 {{ margin:0; font-size:18px; }}
-  .hdr p {{ margin:6px 0 0; font-size:13px; opacity:.85; }}
-  table {{ width:100%; border-collapse:collapse; font-size:13px; }}
+  .hdr h1 {{ margin:0; font-size:17px; }}
+  .hdr p {{ margin:6px 0 0; font-size:12px; opacity:.85; }}
+  .table-wrap {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
+  table {{ width:100%; border-collapse:collapse; font-size:13px; min-width:360px; }}
   th {{ background:#eff6ff; color:#1e40af; font-weight:600; padding:9px 10px;
-        text-align:left; border-bottom:2px solid #bfdbfe; position:sticky;top:0; }}
-  td {{ padding:7px 10px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }}
+        text-align:left; border-bottom:2px solid #bfdbfe; position:sticky; top:0; white-space:nowrap; }}
+  td {{ padding:8px 10px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }}
   tr:hover td {{ background:#f8faff; }}
+  .col-rank {{ text-align:center; font-weight:700; color:#6b7280; width:40px; }}
+  .col-price {{ white-space:nowrap; }}
+  .col-rating {{ white-space:nowrap; font-size:14px; }}
+  .col-reviews {{ white-space:nowrap; color:#6b7280; }}
   .legend {{ padding:12px 16px; font-size:12px; color:#6b7280; border-top:1px solid #e5e7eb; }}
+  @media (max-width:600px) {{
+    body {{ padding:0; }}
+    .wrap {{ border-radius:0; box-shadow:none; }}
+    .hdr {{ padding:14px; }}
+    .hdr h1 {{ font-size:15px; }}
+    td, th {{ padding:6px 8px; font-size:12px; }}
+    .col-rating {{ font-size:13px; }}
+  }}
 </style>
 </head>
 <body>
@@ -330,12 +342,12 @@ def generate_all_products_html(items: list[dict]) -> str:
        <span style="background:#ea580c;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:6px;">K</span> 표시
     </p>
   </div>
+  <div class="table-wrap">
   <table>
     <thead>
       <tr>
-        <th style="width:48px;">순위</th>
+        <th>순위</th>
         <th>제품명</th>
-        <th>브랜드</th>
         <th>가격</th>
         <th>별점</th>
         <th>리뷰 수</th>
@@ -345,6 +357,7 @@ def generate_all_products_html(items: list[dict]) -> str:
 {rows_html}
     </tbody>
   </table>
+  </div>
   <div class="legend">
     ※ 주황 행 = K-뷰티 감지 제품 &nbsp;|&nbsp;
     <span style="background:#ea580c;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;">K</span> 뱃지 = K-뷰티 &nbsp;|&nbsp;
