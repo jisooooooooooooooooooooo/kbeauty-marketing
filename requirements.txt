@@ -1,0 +1,14 @@
+google-genai
+requests
+beautifulsoup4
+selenium
+praw
+gspread
+google-auth
+google-auth-oauthlib
+pytrends
+python-dotenv
+schedule
+lxml
+fake_useragent
+pandas
