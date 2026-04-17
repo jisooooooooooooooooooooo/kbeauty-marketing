@@ -20,12 +20,20 @@ import logging
 import argparse
 from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from dotenv import load_dotenv
 load_dotenv()
+
+
+def get_et_date_label() -> tuple[str, str]:
+    """ET(미국 동부) 기준 날짜 반환. (날짜문자열, 전체 라벨) 튜플."""
+    et_date = datetime.now(ZoneInfo("America/New_York")).strftime("%Y년 %m월 %d일")
+    label = f"미국 현지 기준 어제 ({et_date})"
+    return et_date, label
 
 logging.basicConfig(
     level=logging.INFO,
@@ -109,7 +117,7 @@ def generate_html_report(
     summary: dict,
 ) -> str:
     """HTML 리포트 생성"""
-    today = datetime.now().strftime("%Y년 %m월 %d일")
+    today, today_label = get_et_date_label()
     kbeauty = summary["top_kbeauty"]
     all_kbeauty = [i for i in today_items if i.get("is_kbeauty")]
     share = summary["kbeauty_share"]
@@ -264,7 +272,7 @@ def generate_html_report(
 <div class="container">
   <div class="header">
     <h1>🛒 아마존 K-뷰티 베스트셀러 트래커</h1>
-    <p>{today} · {scraped_note}</p>
+    <p>{today_label} 아마존 베스트셀러 순위 · {scraped_note}</p>
   </div>
   {summary_bar}
   {section1}
@@ -281,7 +289,7 @@ def generate_html_report(
 
 def generate_all_products_html(items: list[dict]) -> str:
     """전체 수집 제품 목록 HTML 생성 (K-뷰티 하이라이트)"""
-    today = datetime.now().strftime("%Y년 %m월 %d일")
+    today, today_label = get_et_date_label()
     kbeauty_count = sum(1 for i in items if i.get("is_kbeauty"))
 
     rows_html = ""
@@ -338,7 +346,7 @@ def generate_all_products_html(items: list[dict]) -> str:
 <div class="wrap">
   <div class="hdr">
     <h1>🛒 아마존 뷰티 베스트셀러 전체 목록</h1>
-    <p>{today} · 전체 {len(items)}개 수집 · K-뷰티 {kbeauty_count}개
+    <p>{today_label} 아마존 베스트셀러 순위 · 전체 {len(items)}개 수집 · K-뷰티 {kbeauty_count}개
        <span style="background:#ea580c;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:6px;">K</span> 표시
     </p>
   </div>
@@ -370,7 +378,7 @@ def generate_all_products_html(items: list[dict]) -> str:
 
 def build_email_html(changes: dict, summary: dict, today_items: list[dict]) -> str:
     """이메일용 HTML 생성 (K-뷰티 TOP 5 + 리포트 링크 포함)"""
-    today = datetime.now().strftime("%Y년 %m월 %d일")
+    today, today_label = get_et_date_label()
 
     PREVIEW_URL = "https://jisooooooooooooooooooooo.github.io/kbeauty-marketing/amazon_preview.html"
     ALL_PRODUCTS_URL = "https://jisooooooooooooooooooooo.github.io/kbeauty-marketing/all_products.html"
@@ -441,7 +449,7 @@ def build_email_html(changes: dict, summary: dict, today_items: list[dict]) -> s
       🛒 아마존 K-뷰티 베스트셀러 트래커
     </h1>
     <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:13px;">
-      {today} · TOP {summary['total_top100']} 수집 · K-뷰티 {summary['kbeauty_count']}개 ({summary['kbeauty_share']}%)
+      {today_label} 아마존 베스트셀러 순위 · TOP {summary['total_top100']} 수집 · K-뷰티 {summary['kbeauty_count']}개 ({summary['kbeauty_share']}%)
     </p>
   </div>
 
@@ -591,11 +599,11 @@ def run(dry_run: bool = False):
         logger.info("Step 4: 이메일 발송 (매일 발송)")
         try:
             from phase1_newsletter.mailer import send_newsletter
-            today_str = datetime.now().strftime("%Y년 %m월 %d일")
+            _, today_label = get_et_date_label()
             email_html = build_email_html(changes, summary, items)
             sent = send_newsletter(
                 email_html,
-                subject=f"[K-뷰티 알림] 아마존 베스트셀러 - {today_str}",
+                subject=f"[K-뷰티 알림] {today_label} 아마존 베스트셀러 순위",
             )
             results["email"] = {"success": sent}
             logger.info(f"Step 4 완료: {'발송 성공' if sent else '발송 실패'}")
